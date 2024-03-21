@@ -1,18 +1,17 @@
 # YOLOv3-Realtime-Cam-Detection-on-Manifold2-NVIDIA-Jetson-TX2
 ## 0 使用须知
 
-```bash
 1. 系统和软件版本最好和我严格对应，至少大版本应该一样
-2. 推荐安装jtop，可以实时监控cpu、gpu、内存、磁盘等系统状态和系统软件版本，但不是必须，故未列出安装方法。
+2. 推荐安装`jtop`，可以实时监控CPU、GPU、内存、磁盘等系统状态和系统软件版本，但不是必须，故未列出安装方法。
 3. 在编译过程中，尽量启动风扇提高编译速度，中途风扇停止可再次启动。如果觉得很吵可以更改风扇速度（下文有说）。
 4. 如果`apt-get install`不顺利，可以尝试使用`aptitude`软件包管理工具。
-5. 本项目采用源码编译安装python3.6.13，也可以采用别的方式安装，只要版本一样即可，至少大版本应该一样。
+5. 本项目采用源码编译安装`python3.6.13`，也可以采用别的方式安装，只要版本一样即可，至少大版本应该一样。
 5. 安装过程中遇到问题请先查看在文末提到的可能遇到的问题。
-```
 
 
 
 ## 1 查看系统和软件版本
+
 ```bash
 # 查看系统内核
 uname -a 
@@ -159,6 +158,7 @@ free -h
 sudo /home/dji/jetson_clocks.sh
 
 # 建议用我给的python源码包，从官方下载的需要修改一些地方，包括仅用NCCL、CUDA，修改load函数等
+cd /YOLOv3-Realtime-Cam-Detection-on-Manifold2-NVIDIA-Jetson-TX2
 tar -zxvf pytorch_v1.0.0_for_Manifold2.tar.gz 
 cd pytorch
 git submodule update --init --recursive
@@ -211,23 +211,17 @@ True
 
 ## 6 运行YOLOv3 实现相机实时目标检测
 
+将免驱动的摄像头连接到Manifold2开发版上
+
 ```
-cd 
+cd /YOLOv3-Realtime-Cam-Detection-on-Manifold2-NVIDIA-Jetson-TX2/yolov3
+sudo python3 -m pip install -r requirements.txt
 
-sudo python3 detect_spp.py 
-13f 1.0p
-sudo python3 detect_spp.py 
-sudo python3 detect_tiny.py
-70f 0.8p
+# 运行测试demo
+sudo python3 detect.py 
 
-sudo python3 detect_tiny_mini.py
-125f 0.97
-sudo python3 detect.py --cfg='cfg/yolov3-tiny.cfg' --weights='weights/yolov3-tiny.weights'
-70fps 0.8
-sudo python3 detect.py --cfg='cfg/yolov3-tiny.cfg' --weights='weights/yolov3-tiny.weights'
-70fps 0.8
-sudo python3 detect.py --cfg='cfg/yolov3-spp.cfg' --weights='weights/yolov3-spp.weights'
-14fps 1.0
+# 改变参数运行detect任务(可选)
+sudo python3 detect.py --cfg=$CFG --weights=$WEIGHTS --img-size=$IMG_SIZE
 ```
 
 
@@ -238,43 +232,12 @@ sudo python3 detect.py --cfg='cfg/yolov3-spp.cfg' --weights='weights/yolov3-spp.
 
 
 
+## 7 可能遇到的问题
 
+#### 7.1 Python报错：subprocess.CalledProcessError: Command '('lsb_release', '-a')' returned non-zero exit status 1.
 
+报错信息：
 
-
-#备注
-
-Pip install ninja
-
-```
-sudo gedit /pytorch/CMakeList.txt
-#   > CmakeLists.txt : Change NCCL to 'Off' on line 98
-
-sudo gedit /pytorch/setup.py
-#   > setup.py: Add USE_NCCL = False below line 200
-
-sudo gedit /pytorch/tools/setup_helpers/nccl.py
-#               Change NCCL to 'False' on line 78
-
-sudo gedit /pytorch/torch/csrc/cuda/nccl.h
-#   > nccl.h : Comment self-include on line 8
-#              Comment entire code from line 21 to 28
-
-sudo gedit torch/csrc/distributed/c10d/ddp.cpp
-#   > ddp.cpp : Comment nccl.h include on line 6
-#               Comment torch::cuda::nccl::reduce on line 163
-
-sudo vim /pytorch/torch/cuda/__init__.py
-#   > __init__.py : Comment _cudart on line 163 to 165
-
-sudo vim /pytorch/aten/src/ATen/cwrap_parser.py
-#   > cwrap_parser.py: Modify load to safe_load on line 18
-
-sudo vim /pytorch/tools/cwrap/cwrap.py
-#   > cwrap.py: Modify load to safe_load on line 91
-```
-
-python baocuo
 ```
 Exception:
 Traceback (most recent call last):
@@ -339,39 +302,21 @@ Traceback (most recent call last):
   File "/usr/local/python3/lib/python3.6/subprocess.py", line 438, in run
     output=stdout, stderr=stderr)
 subprocess.CalledProcessError: Command '('lsb_release', '-a')' returned non-zero exit status 1.
-
 ```
 
-jiejue
-```
-shan
+解决方案：
 
 ```
-
-```
-/usr/local/cuda/lib64/libcudnn.so.7: error adding symbols: File in wrong format
-collect2: error: ld returned 1 exit status
-caffe2/CMakeFiles/caffe2_gpu.dir/build.make:5755: recipe for target 'lib/libcaffe2_gpu.so' failed
-make[2]: *** [lib/libcaffe2_gpu.so] Error 1
-CMakeFiles/Makefile2:1523: recipe for target 'caffe2/CMakeFiles/caffe2_gpu.dir/all' failed
-make[1]: *** [caffe2/CMakeFiles/caffe2_gpu.dir/all] Error 2
-Makefile:138: recipe for target 'all' failed
-make: *** [all] Error 2
-Failed to run 'bash ../tools/build_pytorch_libs.sh --use-cuda --use-nnpack --use-qnnpack caffe2'
-```
-```
-sudo guoqi ?
-```
-
-sudo apt-get install python3.6-dev shibai
-```
-sudo vim /usr/bin/add-apt-repository
-# modify python3 to python3.5
-
+# 删除lsb_release
+rm -rf /usr/bin/lsb_release
 ```
 
 
-baocuo error adding symbols: File in wrong format
+
+#### 7.2 报错：error adding symbols: File in wrong format
+
+报错信息：
+
 ```
 [ 64%] Linking CXX shared library ../lib/libcaffe2_gpu.so
 /usr/local/cuda/lib64/libcudnn.so.7: error adding symbols: File in wrong format
@@ -385,18 +330,18 @@ make[1]: *** Waiting for unfinished jobs....
 Makefile:138: recipe for target 'all' failed
 make: *** [all] Error 2
 Failed to run 'bash ../tools/build_pytorch_libs.sh --use-cuda --use-nnpack --use-qnnpack caffe2'
+```
+解决方案
 
 ```
-jiejue
-
-```
-# lujing /usr/local/cuda/lib64
+# 从报错中得知路径 `/usr/local/cuda/lib64` 下 `File in wrong format`
 cd /usr/local/cuda/lib64/sudo 
 file * | grep x86-64
-# faxian x64wenjian
-sudo mkdir x86-64_files
-# jainggaicai x64wenjian yidongdao wenjianjia
-sudo mv libcudnn.so.7 libcudnn.so.7.1.1 libcudnn.so.7.4.2  x86-64_files/
 
+# 发现有x64格式文件，我们的系统是arm64的
+sudo mkdir x86-64_files
+
+# 将刚才打印的x64格式文件移动到文件夹 `x86-64_files`
+sudo mv libcudnn.so.7 libcudnn.so.7.1.1 libcudnn.so.7.4.2  x86-64_files/
 ```
 
