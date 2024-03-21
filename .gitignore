@@ -4,5 +4,6 @@ __pycache__
 .mypy_cache
 .cache
 
-# weights
+# weights (retain tiny weights)
 *.weights
+!yolov3-tiny.weights
