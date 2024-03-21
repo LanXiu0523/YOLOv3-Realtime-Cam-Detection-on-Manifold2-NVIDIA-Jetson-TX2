@@ -213,7 +213,7 @@ True
 
 将免驱动的摄像头连接到Manifold2开发版上
 
-```
+```bash
 cd /YOLOv3-Realtime-Cam-Detection-on-Manifold2-NVIDIA-Jetson-TX2/yolov3
 sudo python3 -m pip install -r requirements.txt
 
@@ -228,17 +228,13 @@ sudo python3 detect.py --cfg=$CFG --weights=$WEIGHTS --img-size=$IMG_SIZE
 
 
 
-
-
-
-
 ## 7 可能遇到的问题
 
 #### 7.1 Python报错：subprocess.CalledProcessError: Command '('lsb_release', '-a')' returned non-zero exit status 1.
 
 报错信息：
 
-```
+```bash
 Exception:
 Traceback (most recent call last):
   File "/usr/local/python3/lib/python3.6/site-packages/pip/_internal/cli/base_command.py", line 143, in main
@@ -306,7 +302,7 @@ subprocess.CalledProcessError: Command '('lsb_release', '-a')' returned non-zero
 
 解决方案：
 
-```
+```bash
 # 删除lsb_release
 rm -rf /usr/bin/lsb_release
 ```
@@ -317,7 +313,7 @@ rm -rf /usr/bin/lsb_release
 
 报错信息：
 
-```
+```bash
 [ 64%] Linking CXX shared library ../lib/libcaffe2_gpu.so
 /usr/local/cuda/lib64/libcudnn.so.7: error adding symbols: File in wrong format
 collect2: error: ld returned 1 exit status
@@ -331,9 +327,9 @@ Makefile:138: recipe for target 'all' failed
 make: *** [all] Error 2
 Failed to run 'bash ../tools/build_pytorch_libs.sh --use-cuda --use-nnpack --use-qnnpack caffe2'
 ```
-解决方案
+解决方案：
 
-```
+```bash
 # 从报错中得知路径 `/usr/local/cuda/lib64` 下 `File in wrong format`
 cd /usr/local/cuda/lib64/sudo 
 file * | grep x86-64
