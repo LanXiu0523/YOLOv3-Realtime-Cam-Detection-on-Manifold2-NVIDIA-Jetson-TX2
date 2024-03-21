@@ -215,6 +215,7 @@ True
 
 ```bash
 cd /YOLOv3-Realtime-Cam-Detection-on-Manifold2-NVIDIA-Jetson-TX2/yolov3
+# 接下来bulid whell for opencv用时也会较长，尽量保证风扇启动以加速bulid
 sudo python3 -m pip install -r requirements.txt
 
 # 运行测试demo
