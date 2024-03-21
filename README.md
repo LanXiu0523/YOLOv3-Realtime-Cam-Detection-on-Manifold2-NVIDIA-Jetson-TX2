@@ -103,7 +103,7 @@ deb-src http://mirrors.ustc.edu.cn/ubuntu-ports/ xenial main universe restricted
 ```bash
 sudo apt-get update
 
-sudo apt-get install gcc g++ tk-dev tk tcl build-essential python-dev python3-dev python3.6-dev python-setuptools python-pip python3-pip python3-sklearn libopenblas-dev libatlas-dev liblapack-dev libsqlite3-dev libssl-dev libffi-dev libc6-dev libjpeg-dev openssl zlib1g-dev checkinstall
+sudo apt-get install gcc g++ build-essential checkinstall libatlas-dev libc6-dev libffi-dev libfreetype6-dev libjpeg-dev liblapack-dev libopenblas-dev libsqlite3-dev libssl-dev libxft-dev openssl python-dev python3-dev python3.6-dev python-pip python3-pip python-setuptools python3-sklearn tcl tk tk-dev zlib1g-dev 
 ```
 
 
