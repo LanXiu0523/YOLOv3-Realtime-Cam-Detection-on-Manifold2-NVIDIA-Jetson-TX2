@@ -1,6 +1,6 @@
+# torch >= 1.0.0
 numpy == 1.19.4
 opencv-python
-torch >= 1.0.0
 matplotlib
 pycocotools
 tqdm
