@@ -158,9 +158,9 @@ free -h
 sudo /home/dji/jetson_clocks.sh
 
 # 建议用我给的python源码包，从官方下载的需要修改一些地方，包括仅用NCCL、CUDA，修改load函数等
-cd /YOLOv3-Realtime-Cam-Detection-on-Manifold2-NVIDIA-Jetson-TX2
+cd YOLOv3-Realtime-Cam-Detection-on-Manifold2-NVIDIA-Jetson-TX2/
 tar -zxvf pytorch_v1.0.0_for_Manifold2.tar.gz 
-cd pytorch
+cd pytorch/
 git submodule update --init --recursive
 
 sudo python3 -m pip install -U setuptools
@@ -214,7 +214,7 @@ True
 将免驱动的摄像头连接到Manifold2开发版上
 
 ```bash
-cd /YOLOv3-Realtime-Cam-Detection-on-Manifold2-NVIDIA-Jetson-TX2/yolov3
+cd YOLOv3-Realtime-Cam-Detection-on-Manifold2-NVIDIA-Jetson-TX2/yolov3/
 # 接下来bulid whell for opencv-python用时也会较长，尽量保证风扇启动以加速bulid
 sudo python3 -m pip install -r requirements.txt
 
@@ -332,13 +332,82 @@ Failed to run 'bash ../tools/build_pytorch_libs.sh --use-cuda --use-nnpack --use
 
 ```bash
 # 从报错中得知路径 `/usr/local/cuda/lib64` 下 `File in wrong format`
-cd /usr/local/cuda/lib64/sudo 
-file * | grep x86-64
+cd /usr/local/cuda/lib64/
+sudo file * | grep x86-64
 
 # 发现有x64格式文件，我们的系统是arm64的
 sudo mkdir x86-64_files
 
 # 将刚才打印的x64格式文件移动到文件夹 `x86-64_files`
 sudo mv libcudnn.so.7 libcudnn.so.7.1.1 libcudnn.so.7.4.2  x86-64_files/
+```
+
+
+
+#### 7.3 Manifold2刷机
+
+1.准备一台Linux Ubuntu系统的计算机作为主机（可以是另一台Manifold2），并确保硬盘空间大于32 GB，下文称之为**主机**。准备一台需要刷机的Manifold2机器，并将其排线正确连接（不要通电），下文称之为**Manifold2**。
+
+
+
+2.在**主机**上，进入https://www.dji.com/cn/manifold-2/downloads下载Manifold2-G刷机所用固件`妙算 Manifold 2 固件 V0.3.3.2 (Manifold 2-G Image Tool & Official Image)，并解压。
+
+```bash
+sudo tar -zxvf manifold2G_image_V0.3.3.2.tar.gz
+lsusb
+```
+
+My logs:
+
+```bash
+dji@manifold2:~$ lsusb
+Bus 002 Device 002: ID 05e3:0620 Genesys Logic, Inc. 
+Bus 002 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+Bus 001 Device 004: ID 25a7:fa70  
+Bus 001 Device 005: ID 046d:c534 Logitech, Inc. Unifying Receiver
+Bus 001 Device 003: ID 05e3:0610 Genesys Logic, Inc. 4-port hub
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+```
+
+
+
+3.将一根Micro-B数据线（或OTG数据线）的Micro-B接口（或OTG接口）接在**Manifold2**上，将另一端的USB 3.0接口接在**主机**上。
+
+
+
+4.**Manifold2**接通电源，并立刻按住开关控制扩展单元的RCV按键，再按住RST按键，2秒后同时松开两个按键。
+
+
+
+5.在**主机**终端输入`lsusb`，若显示有新增的NVIDIA设备，则成功进入恢复模式。若未显示NVIDIA设备，则检查连线及进入方式是否正确，重试上述步骤。
+
+My logs:
+
+```bash
+dji@manifold2:~$ lsusb
+Bus 002 Device 002: ID 05e3:0620 Genesys Logic, Inc. 
+Bus 002 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+Bus 001 Device 004: ID 25a7:fa70  
+Bus 001 Device 005: ID 046d:c534 Logitech, Inc. Unifying Receiver
+Bus 001 Device 003: ID 05e3:0610 Genesys Logic, Inc. 4-port hub
+Bus 001 Device 007: ID 0955:7c18 NVidia Corp. 
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+```
+
+可以看到有新增的NVIDIA设备：
+
+```bash
+Bus 001 Device 007: ID 0955:7c18 NVidia Corp. 
+```
+
+表明成功进入恢复模式。
+
+
+
+6.烧录镜像，在**主机**的终端界面，进入镜像文件所在目录
+
+```bash
+cd manifold2G_image_V0.3.3.2/Linux_for_Tegra/
+sudo ./flash.sh jetson-tx2 mmcblk0p1
 ```
 
