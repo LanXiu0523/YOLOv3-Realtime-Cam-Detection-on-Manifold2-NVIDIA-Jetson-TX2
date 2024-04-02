@@ -7,6 +7,8 @@
 4. 如果`apt-get install`不顺利，可以尝试使用`aptitude`软件包管理工具。
 5. 本项目采用源码编译安装`python3.6.13`，也可以采用别的方式安装，只要版本一样即可，至少大版本应该一样。
 5. 安装过程中遇到问题请先查看在文末提到的可能遇到的问题。
+5. **请一定在挂载的数据盘下安装编译**，保证有20G以上的磁盘空间，系统盘磁盘空间不够。
+5. **亲测刷机后执行本安装教程可以无报错完美安装**，如果遇到无法解决的问题，请参考文末的刷机教程刷机后再重新安装。
 
 
 
@@ -103,7 +105,15 @@ deb-src http://mirrors.ustc.edu.cn/ubuntu-ports/ xenial main universe restricted
 ```bash
 sudo apt-get update
 
-sudo apt-get install gcc g++ build-essential checkinstall libatlas-dev libc6-dev libffi-dev libfreetype6-dev libjpeg-dev liblapack-dev libopenblas-dev libsqlite3-dev libssl-dev libxft-dev openssl python-dev python3-dev python3.6-dev python-pip python3-pip python-setuptools python3-sklearn tcl tk tk-dev zlib1g-dev 
+sudo apt-get install gcc g++ build-essential checkinstall libatlas-dev libc6-dev libffi-dev libfreetype6-dev libjpeg-dev liblapack-dev libopenblas-dev libsqlite3-dev libssl-dev libxft-dev ninja-build openssl python-dev python3-dev python3.6-dev python-pip python3-pip python-setuptools python3-sklearn tcl tk tk-dev zlib1g-dev 
+```
+
+若`apt-get install`总失败且无法解决，可以考虑尝试：
+
+```bash
+sudo apt-get install aptitude
+
+sudo aptitude install gcc g++ build-essential checkinstall libatlas-dev libc6-dev libffi-dev libfreetype6-dev libjpeg-dev liblapack-dev libopenblas-dev libsqlite3-dev libssl-dev libxft-dev ninja-build openssl python-dev python3-dev python3.6-dev python-pip python3-pip python-setuptools python3-sklearn tcl tk tk-dev zlib1g-dev 
 ```
 
 
@@ -114,6 +124,7 @@ sudo apt-get install gcc g++ build-essential checkinstall libatlas-dev libc6-dev
 wget https://www.python.org/ftp/python/3.6.13/Python-3.6.13.tgz
 tar -zxvf Python-3.6.13.tgz
 
+cd Python-3.6.13/
 ./configure --prefix=/usr/local/python3
 sudo make && sudo make install
 
@@ -158,6 +169,7 @@ free -h
 sudo /home/dji/jetson_clocks.sh
 
 # 建议用我给的python源码包，从官方下载的需要修改一些地方，包括仅用NCCL、CUDA，修改load函数等
+git clone git@github.com:LanXiu0523/YOLOv3-Realtime-Cam-Detection-on-Manifold2-NVIDIA-Jetson-TX2.git
 cd YOLOv3-Realtime-Cam-Detection-on-Manifold2-NVIDIA-Jetson-TX2/
 tar -zxvf pytorch_v1.0.0_for_Manifold2.tar.gz 
 cd pytorch/
@@ -231,7 +243,7 @@ sudo python3 detect.py --cfg=$CFG --weights=$WEIGHTS --img-size=$IMG_SIZE
 
 ## 7 可能遇到的问题
 
-#### 7.1 Python报错：subprocess.CalledProcessError: Command '('lsb_release', '-a')' returned non-zero exit status 1.
+#### 7.1 Python pip报错：subprocess.CalledProcessError: Command '('lsb_release', '-a')' returned non-zero exit status 1.
 
 报错信息：
 
@@ -305,12 +317,12 @@ subprocess.CalledProcessError: Command '('lsb_release', '-a')' returned non-zero
 
 ```bash
 # 删除lsb_release
-rm -rf /usr/bin/lsb_release
+sudo rm -rf /usr/bin/lsb_release
 ```
 
 
 
-#### 7.2 报错：error adding symbols: File in wrong format
+#### 7.2 Pytorch 编译报错：error adding symbols: File in wrong format
 
 报错信息：
 
@@ -344,9 +356,28 @@ sudo mv libcudnn.so.7 libcudnn.so.7.1.1 libcudnn.so.7.4.2  x86-64_files/
 
 
 
-#### 7.3 Manifold2刷机
+#### 7.3 CMake升级
 
-1.准备一台Linux Ubuntu系统的计算机作为主机（可以是另一台Manifold2），并确保硬盘空间大于32 GB，下文称之为**主机**。准备一台需要刷机的Manifold2机器，并将其排线正确连接（不要通电），下文称之为**Manifold2**。
+```bash
+wget https://cmake.org/files/v3.21/cmake-3.21.4-linux-aarch64.tar.gz
+tar -zxvf cmake-3.21.4-linux-aarch64.tar.gz
+
+# 查看当前CMake路径
+which cmake
+# 我这里查看到CMake路径为'/usr/bin/cmake'
+sudo rm /usr/bin/cmake
+# 需要写绝对路径
+sudo ln -s /xxx/cmake-3.21.4-linux-aarch64/bin/cmake /usr/bin/cmake
+
+# 查看CMake版本，应为cmake version 3.21.4
+cmake -version
+```
+
+
+
+#### 7.4 Manifold2刷机
+
+1.准备一台Linux Ubuntu16系统x86_64架构的计算机作为主机（可以是虚拟机，或者另一台x86_64架构的Manifold2等等），并确保硬盘空间大于32 GB，下文称之为**主机**。准备一台需要刷机的Manifold2机器，并将其排线正确连接（不要通电），下文称之为**Manifold2**。
 
 
 
@@ -411,3 +442,6 @@ cd manifold2G_image_V0.3.3.2/Linux_for_Tegra/
 sudo ./flash.sh jetson-tx2 mmcblk0p1
 ```
 
+
+
+7.刷机的过程中，Manifold2风扇会自启，风扇停止后则刷机完成。刷机过程遇到大部分问题重复进行刷机流程即可解决（遇到无法解决的问题可以尝试还原**主机**的python3版本）。
