@@ -168,7 +168,7 @@ free -h
 # 启动风扇
 sudo /home/dji/jetson_clocks.sh
 
-# 建议用我给的python源码包，从官方下载的需要修改一些地方，包括仅用NCCL、CUDA，修改load函数等
+# 建议用我给的python源码包，从官方下载的需要修改一些地方，包括禁用NCCL、CUDA，修改load函数等
 git clone git@github.com:LanXiu0523/YOLOv3-Realtime-Cam-Detection-on-Manifold2-NVIDIA-Jetson-TX2.git
 cd YOLOv3-Realtime-Cam-Detection-on-Manifold2-NVIDIA-Jetson-TX2/
 tar -zxvf pytorch_v1.0.0_for_Manifold2.tar.gz 
